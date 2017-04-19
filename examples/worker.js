@@ -13,9 +13,11 @@ var worker = new Peer(link, {})
 var service = worker.listen('req', 5000)
 
 setInterval(function() {
-  worker.announce('test', service.port, {}, () => {
-    console.log('announced')
-  })
+  if (service.listening) {
+    worker.announce('test', service.port, {}, () => {
+      console.log('announced')
+    })
+  }
 
   var v = 'hello'
 

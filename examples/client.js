@@ -11,7 +11,7 @@ link.start()
 
 var client = new Peer(link, {})
 
-var reqs = 10000
+var reqs = 100
 var reps = 0
 
 setTimeout(() => {
