@@ -10,6 +10,7 @@ const link = new Base.Link({
 link.start()
 
 const client = new Peer(link, {})
+client.init()
 
 const reqs = 1000
 let reps = 0
@@ -18,7 +19,7 @@ setTimeout(() => {
   const d1 = new Date()
   for (let i = 0; i < reqs; i++) {
     client.request('test', 'hello', { timeout: 10000 }, (err, data) => {
-      console.log(err, data)
+      //console.log(err, data)
       if (++reps === reqs) {
         const d2 = new Date()
         console.log(d2 - d1) 
