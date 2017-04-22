@@ -1,1 +1,1 @@
-module.exports.Peer = require('./lib/PeerRPC')
+module.exports.PeerRPC = require('./lib/PeerRPC')
