@@ -9,23 +9,25 @@ const link = new Base.Link({
 })
 link.start()
 
-const worker = new Peer(link, {})
-const service = worker.transport('server')
-service.listen(50000)
+const peer = new Peer(link, {})
+peer.init()
+
+const service = peer.transport('server')
+service.listen(50002)
 
 setInterval(function() {
-  worker.announce('test', service.port, {}, () => {
+  peer.announce('test', service.port, {}, () => {
     console.log('announced')
   })
 
   const v = 'hello'
 
-  worker.put({ v: v }, (err, res) => {
+  peer.put({ v: v }, (err, res) => {
     console.log('val: ' + v + ' saved to the DHT', res) 
   })
 }, 1000)
 
 service.on('request', (rid, key, payload, handler) => {
-  //console.log('worker', rid, key, payload)
+  console.log('peer', rid, key, payload)
   handler.reply('world')
 })
