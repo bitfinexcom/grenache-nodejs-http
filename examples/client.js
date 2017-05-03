@@ -27,3 +27,8 @@ setTimeout(() => {
     })
   }
 }, 2000)
+  
+setInterval(() => {
+  link.get('e28910ea0adb94dd45ced75fbff3e135c01bc437', console.log) // request 'hello'
+  link.get('malformed hash', console.log)
+}, 2000)

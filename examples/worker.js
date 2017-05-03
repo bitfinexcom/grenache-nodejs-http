@@ -20,10 +20,8 @@ setInterval(function() {
     console.log('announced')
   })
 
-  const v = 'hello'
-
-  link.put({ v: v }, (err, res) => {
-    console.log('val: ' + v + ' saved to the DHT', res) 
+  link.put({ v: 'hello' }, (err, res) => {
+    console.log('data saved to the DHT', err, res) 
   })
 }, 1000)
 
