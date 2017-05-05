@@ -1,6 +1,5 @@
 'use strict'
 
-const _ = require('lodash')
 const Base = require('grenache-nodejs-base')
 const Peer = require('./../lib/PeerRPC')
 
