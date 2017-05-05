@@ -8,16 +8,14 @@ const link = new Base.Link({
   grape: 'ws://127.0.0.1:30002'
 })
 link.start()
-
+  
 setInterval(() => {
-  let hash = null
-
-  link.put({ v: 'hello world' }, (err, res) => {
-    console.log('data saved to the DHT', err, res)
-    if (!err) hash = res
+  link.put({ v: 'hello world' }, (err, hash) => {
+    console.log('data saved to the DHT', err, hash)
+    if (hash) {
+      link.get(hash, (err, res) => {
+        console.log('data requested to the DHT', err, res)
+      })
+    }
   })
-
-  if (hash) {
-    link.get(hash, console.log)
-  }
 }, 2000)
