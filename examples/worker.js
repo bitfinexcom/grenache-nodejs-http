@@ -16,16 +16,10 @@ const service = peer.transport('server')
 service.listen(50002)
 
 setInterval(function() {
-  link.announce('test', service.port, {}, () => {
-    console.log('announced')
-  })
-
-  link.put({ v: 'hello' }, (err, res) => {
-    console.log('data saved to the DHT', err, res) 
-  })
+  link.announce('test', service.port, {})
 }, 1000)
 
 service.on('request', (rid, key, payload, handler) => {
-  console.log('peer', rid, key, payload)
+  //console.log('peer', rid, key, payload)
   handler.reply('world')
 })
