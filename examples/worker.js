@@ -19,6 +19,6 @@ setInterval(function() {
 }, 1000)
 
 service.on('request', (rid, key, payload, handler) => {
-  console.log('peer', rid, key, payload)
+  //console.log('peer', rid, key, payload)
   handler.reply('world')
 })
