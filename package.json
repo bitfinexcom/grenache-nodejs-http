@@ -1,6 +1,6 @@
 {
   "name": "grenache-nodejs-http",
-  "version": "0.0.31",
+  "version": "0.1.0",
   "private": false,
   "description": "Granache Grape",
   "author": "prdn <paolo@bitfinex.com> (https://bitfinex.com/)",
