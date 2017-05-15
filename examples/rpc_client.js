@@ -22,7 +22,7 @@ setTimeout(() => {
         console.error(err)
         process.exit(-1)
       }
-      // console.log(err, data)
+      console.log(err, data)
       if (++reps === reqs) {
         const d2 = new Date()
         console.log(d2 - d1)
