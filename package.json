@@ -17,9 +17,6 @@
     "lodash": "~4.17.4",
     "uuid": "~3.0.1"
   },
-  "engine": {
-    "node": ">=4.4"
-  },
   "main": "index.js",
   "directories": {
     "example": "examples",
