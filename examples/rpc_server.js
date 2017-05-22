@@ -22,5 +22,5 @@ setInterval(function () {
 service.on('request', (rid, key, payload, handler) => {
   // console.log('peer', rid, key, payload)
   handler.reply(null, 'world')
-  //handler.reply(new Error('something went wrong'), 'world')
+  // handler.reply(new Error('something went wrong'), 'world')
 })
