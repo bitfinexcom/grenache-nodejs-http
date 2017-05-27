@@ -2,7 +2,7 @@
   "name": "grenache-nodejs-http",
   "version": "0.1.3",
   "private": false,
-  "description": "Granache Grape",
+  "description": "Granache Node.js HTTP implementation",
   "author": "prdn <paolo@bitfinex.com> (https://bitfinex.com/)",
   "keywords": [
     "grenache",
@@ -18,26 +18,18 @@
     "uuid": "~3.0.1"
   },
   "main": "index.js",
-  "directories": {
-    "example": "examples",
-    "test": "test"
-  },
   "devDependencies": {
-    "chai": "~3.2.0",
-    "mocha": "~2.2.5",
+    "mocha": "^3.4.2",
     "standard": "^10.0.2"
   },
   "scripts": {
-    "test": "npm run lint",
-    "lint": "standard"
+    "test": "npm run lint && npm run unit",
+    "lint": "standard",
+    "unit": "mocha -R spec"
   },
   "license": "MIT",
   "repository": {
     "type": "git",
     "url": "https://github.com/bitfinexcom/grenache-nodejs-http.git"
-  },
-  "bugs": {
-    "url": "https://github.com/bitfinexcom/grenache-nodejs-http/issues"
-  },
-  "homepage": "https://github.com/bitfinexcom/grenache-nodejs-http"
+  }
 }
