@@ -278,7 +278,7 @@ setTimeout(() => {
  - `options` &lt;Object&gt;
    - `maxActiveKeyDests` &lt;Number&gt;
    - `maxActiveDestTransports` &lt;Number&gt;
-   - `secure`: &lt;Object&gt; TLS options
+   - `secure`: &lt;Object&gt; TLS options
      - `key` &lt;Buffer&gt;
      - `cert` &lt;Buffer&gt;
      - `ca` &lt;Buffer&gt;
