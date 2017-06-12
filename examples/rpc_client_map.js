@@ -5,7 +5,7 @@ const Link = Grenache.Link
 const Peer = Grenache.PeerRPCClient
 
 const link = new Link({
-  grape: 'ws://127.0.0.1:30001'
+  grape: 'http://127.0.0.1:30001'
 })
 link.start()
 

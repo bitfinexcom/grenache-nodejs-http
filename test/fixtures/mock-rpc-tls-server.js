@@ -13,7 +13,7 @@ const CLIENT_FINGERPRINT = process.argv[2]
 if (!CLIENT_FINGERPRINT) throw new Error('please supply a fingerprint as first argument')
 
 const link = new Base.Link({
-  grape: 'ws://127.0.0.1:30001'
+  grape: 'http://127.0.0.1:30001'
 })
 link.start()
 

@@ -57,7 +57,7 @@ describe('RPC tls integration, valid fingerprint', () => {
 
   it('messages with the rpc worker', (done) => {
     const link = new Base.Link({
-      grape: 'ws://127.0.0.1:30001'
+      grape: 'http://127.0.0.1:30001'
     })
     link.start()
 
@@ -125,7 +125,7 @@ describe('RPC tls integration, invalid fingerprint', () => {
 
   it('messages with the rpc worker', (done) => {
     const link = new Base.Link({
-      grape: 'ws://127.0.0.1:30001'
+      grape: 'http://127.0.0.1:30001'
     })
     link.start()
 

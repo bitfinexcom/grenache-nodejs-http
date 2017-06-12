@@ -37,7 +37,7 @@ describe('RPC integration', () => {
 
   it('messages with the rpc worker', (done) => {
     const link = new Base.Link({
-      grape: 'ws://127.0.0.1:30001'
+      grape: 'http://127.0.0.1:30001'
     })
     link.start()
 
