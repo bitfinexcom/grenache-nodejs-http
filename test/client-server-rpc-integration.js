@@ -7,41 +7,42 @@ const spawn = require('child_process').spawn
 const path = require('path')
 
 const parallel = require('async/parallel')
-const Base = require('grenache-nodejs-base')
-const Peer = require('./../').PeerRPCClient
+const { PeerRPCClient, Link } = require('./../')
+const { bootTwoGrapes, killGrapes } = require('./helper')
 
-let rpc, grape
+let rpc, grapes
 describe('RPC integration', () => {
   before(function (done) {
-    this.timeout(6000)
-    grape = spawn(path.join(__dirname, 'boot-grape.sh'), { detached: true })
-    setTimeout(() => {
+    this.timeout(8000)
+
+    bootTwoGrapes((err, g) => {
+      if (err) throw err
+
+      grapes = g
+      grapes[0].once('announce', (msg) => {
+        done()
+      })
+
       const f = path.join(__dirname, '..', 'examples', 'rpc_server.js')
       rpc = spawn('node', [ f ])
-      done()
-    }, 5000)
+    })
   })
 
   after(function (done) {
     this.timeout(5000)
     rpc.on('close', () => {
-      done()
+      killGrapes(grapes, done)
     })
-
-    grape.on('close', () => {
-      rpc.kill()
-    })
-
-    process.kill(-grape.pid)
+    rpc.kill()
   })
 
   it('messages with the rpc worker', (done) => {
-    const link = new Base.Link({
+    const link = new Link({
       grape: 'http://127.0.0.1:30001'
     })
     link.start()
 
-    const peer = new Peer(link, {})
+    const peer = new PeerRPCClient(link, {})
     peer.init()
 
     const reqs = 5
