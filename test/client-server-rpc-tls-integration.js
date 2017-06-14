@@ -10,6 +10,7 @@ const fs = require('fs')
 const parallel = require('async/parallel')
 const Base = require('grenache-nodejs-base')
 const Peer = require('./../').PeerRPCClient
+const { bootTwoGrapes, killGrapes } = require('./helper')
 
 const secure = {
   key: fs.readFileSync(path.join(__dirname, 'fixtures', 'client1-key.pem')),
@@ -21,12 +22,19 @@ const secure = {
 const VALID_FINGERPRINT = '22:48:11:0C:56:E7:49:2B:E9:20:2D:CE:D6:B0:7D:64:F2:32:C8:4B'
 const INVALID_FINGERPRINT = '22:48:11:0C:56:E7:49:2B:E9:20:2D:CE:D6:B0:7D:64:F2:32:C8:23'
 
-let rpc, grape
+let rpc, grapes
 describe('RPC tls integration, valid fingerprint', () => {
   before(function (done) {
-    this.timeout(6000)
-    grape = spawn(path.join(__dirname, 'boot-grape.sh'), { detached: true })
-    setTimeout(() => {
+    this.timeout(8000)
+
+    bootTwoGrapes((err, g) => {
+      if (err) throw err
+
+      grapes = g
+      grapes[0].once('announce', (msg) => {
+        done()
+      })
+
       const f = path.join(__dirname, 'fixtures', 'mock-rpc-tls-server.js')
       rpc = spawn('node', [ f, VALID_FINGERPRINT ])
 
@@ -37,22 +45,15 @@ describe('RPC tls integration, valid fingerprint', () => {
       rpc.stderr.on('data', (d) => {
         console.log('mock-rpc-tls-server.js: ', d.toString())
       })
-
-      done()
-    }, 5000)
+    })
   })
 
   after(function (done) {
     this.timeout(5000)
     rpc.on('close', () => {
-      done()
+      killGrapes(grapes, done)
     })
-
-    grape.on('close', () => {
-      rpc.kill()
-    })
-
-    process.kill(-grape.pid)
+    rpc.kill()
   })
 
   it('messages with the rpc worker', (done) => {
@@ -93,8 +94,15 @@ describe('RPC tls integration, valid fingerprint', () => {
 describe('RPC tls integration, invalid fingerprint', () => {
   before(function (done) {
     this.timeout(6000)
-    grape = spawn(path.join(__dirname, 'boot-grape.sh'), { detached: true })
-    setTimeout(() => {
+
+    bootTwoGrapes((err, g) => {
+      if (err) throw err
+
+      grapes = g
+      grapes[0].once('announce', (msg) => {
+        done()
+      })
+
       const f = path.join(__dirname, 'fixtures', 'mock-rpc-tls-server.js')
       rpc = spawn('node', [ f, INVALID_FINGERPRINT ])
 
@@ -105,22 +113,15 @@ describe('RPC tls integration, invalid fingerprint', () => {
       rpc.stderr.on('data', (d) => {
         console.log('mock-rpc-tls-server.js: ', d.toString())
       })
-
-      done()
-    }, 5000)
+    })
   })
 
   after(function (done) {
     this.timeout(5000)
     rpc.on('close', () => {
-      done()
+      killGrapes(grapes, done)
     })
-
-    grape.on('close', () => {
-      rpc.kill()
-    })
-
-    process.kill(-grape.pid)
+    rpc.kill()
   })
 
   it('messages with the rpc worker', (done) => {
