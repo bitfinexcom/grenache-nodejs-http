@@ -11,13 +11,13 @@ const link = new Link({
 })
 link.start()
 
-const peer = new Peer(link, {})
+const peer = new Peer(link, {
+  timeout: 300000
+})
 peer.init()
 
 const service = peer.transport('server')
-service.listen(_.random(1000) + 1024, {
-  timeout: 300000
-})
+service.listen(_.random(1000) + 1024)
 
 setInterval(function () {
   link.announce('rpc_test', service.port, {})

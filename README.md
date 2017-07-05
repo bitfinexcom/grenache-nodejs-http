@@ -60,7 +60,9 @@ const link = new Link({
 })
 link.start()
 
-const peer = new PeerRPCServer(link, {})
+const peer = new PeerRPCServer(link, {
+  timeout: 300000
+})
 peer.init()
 
 const service = peer.transport('server')
@@ -171,6 +173,7 @@ service.on('request', (rid, key, payload, handler) => {
 
  - `link` &lt;Object&gt; Instance of a [Link Class](#new-linkoptions)
  - `options` &lt;Object&gt;
+   - timeout: &lt;Object&gt; Server-side socket timeout
    - secure: &lt;Object&gt; TLS options
      - `key` &lt;Buffer&gt;
      - `cert` &lt;Buffer&gt;
