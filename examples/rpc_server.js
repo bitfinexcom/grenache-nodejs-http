@@ -15,7 +15,9 @@ const peer = new Peer(link, {})
 peer.init()
 
 const service = peer.transport('server')
-service.listen(_.random(1000) + 1024)
+service.listen(_.random(1000) + 1024, {
+  timeout: 300000
+})
 
 setInterval(function () {
   link.announce('rpc_test', service.port, {})
@@ -23,6 +25,6 @@ setInterval(function () {
 
 service.on('request', (rid, key, payload, handler) => {
   // console.log('peer', rid, key, payload)
-  handler.reply(null, 'world')
+//  handler.reply(null, 'world')
   // handler.reply(new Error('something went wrong'), 'world')
 })
