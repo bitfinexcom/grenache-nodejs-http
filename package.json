@@ -22,13 +22,11 @@
   "main": "index.js",
   "devDependencies": {
     "grenache-grape": "git+https://github.com/bitfinexcom/grenache-grape.git",
-    "mocha": "^3.4.2",
     "standard": "^10.0.2"
   },
   "scripts": {
-    "test": "npm run lint && npm run unit",
-    "lint": "standard",
-    "unit": "mocha -R spec"
+    "test": "npm run lint",
+    "lint": "standard"
   },
   "license": "MIT",
   "repository": {
