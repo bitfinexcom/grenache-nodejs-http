@@ -1,6 +1,6 @@
 {
   "name": "grenache-nodejs-http",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "private": false,
   "description": "Granache Node.js HTTP implementation",
   "author": "prdn <paolo@bitfinex.com> (https://bitfinex.com/)",
@@ -13,7 +13,8 @@
   "dependencies": {
     "async": "~2.5.0",
     "debug": "~2.2.0",
-    "grenache-nodejs-base": "^0.4.0",
+    "grenache-nodejs-link": "^0.5.0",
+    "grenache-nodejs-base": "^0.5.0",
     "lodash": "~4.17.4",
     "request": "^2.81.0",
     "uuid": "~3.0.1"
