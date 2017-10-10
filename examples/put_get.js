@@ -1,6 +1,5 @@
 'use strict'
 
-const Grenache = require('./../')
 const Link = require('grenache-nodejs-link')
 
 const link = new Link({
