@@ -14,7 +14,7 @@ Internally, Grenache uses Distributed Hash Tables (DHT, known from Bittorrent) f
 
 ### Install
 ```
-npm install --save grenache-nodejs-ws
+npm install --save grenache-nodejs-http
 ```
 
 ### Other Requirements
