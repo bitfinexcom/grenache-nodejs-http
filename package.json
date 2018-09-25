@@ -11,6 +11,9 @@
     "micro-services"
   ],
   "dependencies": {
+    "async": "^2.6.0",
+    "debug": "^2.2.0",
+    "duplexify": "^3.6.0",
     "grenache-nodejs-base": "^0.7.3",
     "grenache-nodejs-link": "^0.7.10",
     "lodash": "^4.17.10",
