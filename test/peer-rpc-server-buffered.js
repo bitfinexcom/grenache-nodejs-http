@@ -2,6 +2,8 @@
 
 const assert = require('assert')
 const { PassThrough } = require('stream')
+const fs = require('fs')
+const path = require('path')
 const { PeerRPCClient, PeerRPCServer, PeerRPCStreamClient } = require('../')
 const Link = require('grenache-nodejs-link')
 const setupHooks = require('./before-after.js')
@@ -180,5 +182,45 @@ describe('RPC integration', () => {
     const writable = new PassThrough()
     writable.write('["UUID", "rpc_buf", { "hello": "world" }]')
     writable.pipe(req)
+  }).timeout(7000)
+
+  it('buf/buf: serialized files work', (done) => {
+    serviceBuf.on('request', (rid, key, payload, handler, cert, meta) => {
+      assert.ok(typeof rid === 'string')
+      assert.strictEqual(key, 'rpc_buf')
+
+      assert.strictEqual(payload.action, 'uploadPublic')
+      assert.strictEqual(payload.args[1].key, 'example-amazon-dynamo-sosp2007-4.pdf')
+      assert.strictEqual(typeof payload.args[0], 'string')
+
+      assert.strictEqual(meta.isStream, false)
+
+      handler.reply(null, 'ok')
+    })
+
+    const opts = { timeout: 100000 }
+    const buf = fs.readFileSync(
+      path.join(__dirname, './example-amazon-dynamo-sosp2007.pdf')
+    )
+
+    const optsPdf = {
+      key: 'example-amazon-dynamo-sosp2007-4.pdf',
+      acl: 'public-read',
+      bucket: 'bfx-dev-robert',
+      contentType: 'application/pdf'
+    }
+
+    const queryUploadPublicPdf = {
+      action: 'uploadPublic',
+      args: [ buf.toString('hex'), optsPdf ]
+    }
+    peer.request('rpc_buf', queryUploadPublicPdf, opts, (err, result) => {
+      if (err) throw err
+
+      assert.deepStrictEqual(result, 'ok')
+
+      stop()
+      done()
+    })
   }).timeout(7000)
 })
