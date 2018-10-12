@@ -116,6 +116,7 @@ describe('RPC integration', () => {
 
     const writable = new PassThrough()
     writable.write('["UUID", "rpc_buf", "hello"]')
+    writable.end()
     writable.pipe(req)
   }).timeout(7000)
 
@@ -147,6 +148,7 @@ describe('RPC integration', () => {
 
     const writable = new PassThrough()
     writable.write('["UUID", "rpc_buf", { "hello": "world" }]')
+    writable.end()
     writable.pipe(req)
   }).timeout(7000)
 
@@ -181,6 +183,7 @@ describe('RPC integration', () => {
 
     const writable = new PassThrough()
     writable.write('["UUID", "rpc_buf", { "hello": "world" }]')
+    writable.end()
     writable.pipe(req)
   }).timeout(7000)
 
