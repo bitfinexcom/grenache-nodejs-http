@@ -2,12 +2,12 @@
 
 const assert = require('assert')
 const { PassThrough } = require('stream')
-const { PeerRPCClient, PeerRPCServer, PeerRPCStreamClient } = require('../')
+const { PeerRPCClient, PeerRPCServer } = require('../')
 const Link = require('grenache-nodejs-link')
 const setupHooks = require('./before-after.js')
 
 const PORT = 1337
-let link, peer, peerSrvStr, serviceStr, pst, stop
+let link, peer, peerSrvStr, serviceStr, stop
 describe('RPC integration', () => {
   setupHooks((grapes) => {
     link = new Link({
@@ -17,9 +17,6 @@ describe('RPC integration', () => {
 
     peer = new PeerRPCClient(link, {})
     peer.init()
-
-    pst = new PeerRPCStreamClient(link, {})
-    pst.init()
 
     peerSrvStr = new PeerRPCServer(link, {
       timeout: 300000,
@@ -36,7 +33,6 @@ describe('RPC integration', () => {
 
     stop = () => {
       peer.stop()
-      pst.stop()
       link.stop()
       serviceStr.stop()
     }
@@ -143,7 +139,7 @@ describe('RPC integration', () => {
       })
     })
 
-    const req = pst.stream('rpc_stream', {
+    const req = peer.stream('rpc_stream', {
       timeout: 10000
     })
 
@@ -187,7 +183,7 @@ describe('RPC integration', () => {
       })
     })
 
-    const req = pst.stream('rpc_stream', {
+    const req = peer.stream('rpc_stream', {
       timeout: 10000,
       headers: {
         _a: 'uploadPublic',
