@@ -12,11 +12,9 @@
   ],
   "dependencies": {
     "async": "^2.6.0",
-    "duplexify": "^3.6.0",
     "grenache-nodejs-base": "^0.7.3",
     "grenache-nodejs-link": "^0.7.10",
     "lodash": "^4.17.10",
-    "pump": "^3.0.0",
     "request": "^2.88.0"
   },
   "main": "index.js",
@@ -26,7 +24,7 @@
     "standard": "^12.0.1"
   },
   "scripts": {
-    "test": "npm run lint && mocha",
+    "test": "npm run lint",
     "lint": "standard"
   },
   "license": "Apache-2.0",
