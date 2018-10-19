@@ -109,9 +109,36 @@ peer.request('rpc_test', 'hello', { timeout: 10000 }, (err, data) => {
 
 ### Class: PeerRPCServer
 
+#### Event: 'stream'
+
+Always emitted as son as a request arrives. Emits the raw `req` and `res` streams
+of the request and some preparsed metadata. Used for streaming. If
+`disableBuffered` is set to `false`, the server will attempt to buffer after
+emitting the stream event.
+
+```js
+serviceStr.on('stream', (req, res, meta, handler) => {
+  console.log(meta) // meta.isStream === true
+
+  const [rid, key] = meta.infoHeaders
+
+  req.pipe(process.stdout)
+
+  handler.reply(rid, null, 'world') // convenience reply
+})
+
+```
+
+[Example](https://github.com/bitfinexcom/grenache-nodejs-http/tree/master/examples/rpc_server_stream.js).
+
+
+
 #### Event: 'request'
 
-Emitted when a request from a RPC client is received.
+Emitted when a request from a RPC client is received. In the lifecycle of a
+request this happens after the server has parsed an buffered the whole data.
+When the server runs with `disableBuffered: true`, the event must emitted manually,
+if needed, or by calling the buffering request handlers manually.
 
   - `rid` unique request id
   - `key` name of the service
@@ -126,15 +153,16 @@ service.on('request', (rid, key, payload, handler) => {
 
 #### new PeerRPCServer(link, [options])
 
- - `link` &lt;Object&gt; Instance of a [Link Class](#new-linkoptions)
- - `options` &lt;Object&gt;
-   - timeout: &lt;Object&gt; Server-side socket timeout
-   - secure: &lt;Object&gt; TLS options
-     - `key` &lt;Buffer&gt;
-     - `cert` &lt;Buffer&gt;
-     - `ca` &lt;Buffer&gt;
-     - `requestCert` &lt;Boolean&gt;
-     - `rejectUnauthorized` &lt;Boolean&gt;
+ - `link <Object>` Instance of a [Link Class](#new-linkoptions)
+ - `options <Object>`
+   - `disableBuffered <Boolean>` Disable automatic buffering of the incoming request data stream. Useful for streaming.
+   - `timeout <Object>` Server-side socket timeout
+   - `secure <Object>` TLS options
+     - `key <Buffer>`
+     - `cert <Buffer>`
+     - `ca <Buffer>`
+     - `requestCert <Boolean>`
+     - `rejectUnauthorized <Boolean>`
 
 Creates a new instance of a `PeerRPCServer`, which connects to the DHT
 using the passed `link`.
@@ -226,15 +254,15 @@ peer.request('rpc_test', 'hello', { timeout: 10000 }, (err, data) => {
 
 #### new PeerRPCClient(link, [options])
 
- - `link` &lt;Object&gt; Instance of a [Link Class](#new-linkoptions)
- - `options` &lt;Object&gt;
-   - `maxActiveKeyDests` &lt;Number&gt;
-   - `maxActiveDestTransports` &lt;Number&gt;
-   - `secure`: &lt;Object&gt; TLS options
-     - `key` &lt;Buffer&gt;
-     - `cert` &lt;Buffer&gt;
-     - `ca` &lt;Buffer&gt;
-     - `rejectUnauthorized` &lt;Boolean&gt;
+ - `link <Object>` Instance of a [Link Class](#new-linkoptions)
+ - `options <Object>`
+   - `maxActiveKeyDests <Number>`
+   - `maxActiveDestTransports <Number>`
+   - `secure <Object>` TLS options
+     - `key <Buffer>`
+     - `cert <Buffer>`
+     - `ca <Buffer>`
+     - `rejectUnauthorized <Boolean>`
 
 
 Creates a new instance of a `PeerRPCClient`, which connects to the DHT
@@ -249,24 +277,39 @@ Additionally, you can limit the amount of transports with `maxActiveDestTranspor
 Sets the peer active. Must get called before we start to make requests.
 
 #### peer.map(name, payload, [options], callback)
-  - `name` &lt;String&gt; Name of the service to address
-  - `payload` &lt;String&gt; Payload to send
-  - `options` &lt;Object&gt; Options for the request
-    - `timeout` &lt;Number&gt; timeout in ms
-    - `limit` &lt;Number&gt; maximum requests per available worker
-  - `callback` &lt;function&gt;
+  - `name <String>` Name of the service to address
+  - `payload <String>` Payload to send
+  - `options <Object>` Options for the request
+    - `timeout <Number>` timeout in ms
+    - `limit <Number>` maximum requests per available worker
+  - `callback <Function>`
 
 Maps a number of requests over the amount of registered workers / PeerRPCServers.
 [Example](https://github.com/bitfinexcom/grenache-nodejs-http/tree/master/examples/rpc_client_map.js).
 
 
 #### peer.request(name, payload, [options], callback)
-  - `name` &lt;String&gt; Name of the service to address
-  - `payload` &lt;String&gt; Payload to send
-  - `options` &lt;Object&gt; Options for the request
-    - `timeout` &lt;Number&gt; timeout in ms
-    - `retry` &lt;Number&gt; attempts to make before giving up. default is 1
-  - `callback` &lt;function&gt;
+  - `name <String>` Name of the service to address
+  - `payload <String>` Payload to send
+  - `options <Object>` Options for the request
+    - `timeout <Number>` timeout in ms
+    - `retry <Number>` attempts to make before giving up. default is 1
+  - `callback <Function>`
 
 Sends a single request to a RPC server/worker.
 [Example](https://github.com/bitfinexcom/grenache-nodejs-http/tree/master/examples/rpc_client.js).
+
+
+#### peer.stream(name, opts)
+  - `name <String>` Name of the service to address
+  - `options <Object>` Options for the request
+    - `timeout <Number>` timeout in ms
+    - `headers <Object>` Headers to add to the request
+
+Looks a service up and returns a req-object which is a stream.
+Additional parameters (e.g. content-type), can be added via options.
+
+The default metadata values for the request id and key are automatically
+via header.
+
+[Example](https://github.com/bitfinexcom/grenache-nodejs-http/tree/master/examples/rpc_client_stream.js).
