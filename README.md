@@ -266,8 +266,6 @@ Maps a number of requests over the amount of registered workers / PeerRPCServers
   - `options` &lt;Object&gt; Options for the request
     - `timeout` &lt;Number&gt; timeout in ms
     - `retry` &lt;Number&gt; attempts to make before giving up. default is 1
-    - `excludeDests` &lt;Array&gt; list of dest nodes to exclude.  For example, a service can exclude itself with excludeDests: [`127.0.0.1:${this.grc_bfx.service.port}`]
-    - `continueOnErrors` &lt;Boolean&gt; continue async map operations even if one of them errors.  This utilizes a non standard way to handle errors by returning an Error object as the result. To handle errors with `continueOnErrors`, you must check each result to see if it is an instance of Error before using it
   - `callback` &lt;function&gt;
 
 Sends a single request to a RPC server/worker.
