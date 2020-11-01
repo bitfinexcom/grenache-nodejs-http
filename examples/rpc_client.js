@@ -17,7 +17,7 @@ let reps = 0
 
 const d1 = new Date()
 for (let i = 0; i < reqs; i++) {
-  peer.request('rpc_test', 'hello', { timeout: 10000 }, (err, data) => {
+  peer.request('rpc_test', 'hello', { timeout: 10000, compress: true }, (err, data) => {
     if (err) {
       console.error(err)
       process.exit(-1)
