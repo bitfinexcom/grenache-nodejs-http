@@ -83,6 +83,29 @@ describe('RPC integration', () => {
     })
   }).timeout(7000)
 
+  it('buffered parsing works, compressed strings', (done) => {
+    serviceBuf.on('request', (rid, key, payload, handler, cert, meta) => {
+      assert.ok(typeof rid === 'string')
+      assert.strictEqual(key, 'rpc_buf')
+      assert.strictEqual(payload, 'hello')
+
+      assert.strictEqual(meta.isStream, false)
+      assert.strictEqual(meta.compress, true)
+
+      handler.reply(null, 'world')
+    })
+
+    const opts = { timeout: 100000, compress: true }
+    peer.request('rpc_buf', 'hello', opts, (err, result) => {
+      if (err) throw err
+
+      assert.strictEqual(result, 'world')
+
+      stop()
+      done()
+    })
+  }).timeout(7000)
+
   it('buffered parsing works, strings from streaming client', (done) => {
     serviceBuf.on('request', (rid, key, payload, handler, cert, meta) => {
       assert.ok(typeof rid === 'string')
