@@ -211,7 +211,7 @@ describe('RPC integration', () => {
 
     const queryUploadPublicPdf = {
       action: 'uploadPublic',
-      args: [ buf.toString('hex'), optsPdf ]
+      args: [buf.toString('hex'), optsPdf]
     }
     peer.request('rpc_buf', queryUploadPublicPdf, opts, (err, result) => {
       if (err) throw err
