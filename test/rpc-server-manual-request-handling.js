@@ -52,7 +52,7 @@ describe('RPC integration', () => {
 
   const queryUploadPublicPdf = {
     action: 'uploadPublic',
-    args: [ buf.toString('hex'), optsPdf ]
+    args: [buf.toString('hex'), optsPdf]
   }
 
   it('manual request handling works', (done) => {
