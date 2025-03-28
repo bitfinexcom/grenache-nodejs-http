@@ -24,7 +24,7 @@ const secure = {
 
 const peer = new Peer(
   link,
-  { secure: secure }
+  { secure }
 )
 
 peer.init()

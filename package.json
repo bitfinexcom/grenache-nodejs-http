@@ -10,22 +10,27 @@
     "nodejs",
     "micro-services"
   ],
+  "engine": {
+    "node": ">=16.0"
+  },
   "dependencies": {
-    "async": "^3.2.4",
-    "grenache-nodejs-base": "^0.7.5",
-    "grenache-nodejs-link": "^0.7.13",
+    "async": "3.2.6",
+    "grenache-nodejs-base": "0.7.5",
+    "grenache-nodejs-link": "1.0.0",
     "lodash": "^4.17.21",
     "request": "^2.88.0"
   },
   "main": "index.js",
   "devDependencies": {
     "grenache-grape": "^0.9.12",
-    "mocha": "^10.2.0",
-    "standard": "^17.0.0"
+    "mocha": "11.1.0",
+    "standard": "17.1.2"
   },
   "scripts": {
-    "test": "npm run lint",
-    "lint": "standard"
+    "test": "npm run lint && npm run unit",
+    "unit": "mocha",
+    "lint": "standard",
+    "lint:fix": "standard --fix"
   },
   "license": "Apache-2.0",
   "repository": {
