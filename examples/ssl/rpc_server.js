@@ -17,9 +17,9 @@ link.start()
 
 const opts = {
   secure: {
-    key: fs.readFileSync(path.join(__dirname, 'server-key.pem')),
-    cert: fs.readFileSync(path.join(__dirname, 'server-crt.pem')),
-    ca: fs.readFileSync(path.join(__dirname, 'ca-crt.pem')),
+    key: fs.readFileSync(path.join(__dirname, '../../test/certs/server-key.pem')),
+    cert: fs.readFileSync(path.join(__dirname, '../../test/certs/server-crt.pem')),
+    ca: fs.readFileSync(path.join(__dirname, '../../test/certs/ca-crt.pem')),
     requestCert: true,
     rejectUnauthorized: false // take care, can be dangerous in production!
   }
