@@ -10,7 +10,7 @@
     "nodejs",
     "micro-services"
   ],
-  "engine": {
+  "engines": {
     "node": ">=16.0"
   },
   "dependencies": {
