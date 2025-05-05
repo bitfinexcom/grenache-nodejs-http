@@ -2,26 +2,24 @@
 
 'use strict'
 
-const { bootTwoGrapes, killGrapes } = require('./helper')
+const { startGrapes, stopGrapes } = require('./helper')
 
 let grapes
 function setupHooks (cb) {
-  beforeEach(function (done) {
+  beforeEach(async function () {
     this.timeout(20000)
-    bootTwoGrapes((err, g) => {
-      if (err) throw err
-      grapes = g
-      grapes[0].once('announce', () => {
-        done()
-      })
 
-      cb()
+    grapes = await startGrapes()
+    cb()
+
+    await new Promise((resolve) => {
+      grapes[0].once('announce', () => resolve())
     })
   })
 
-  afterEach(function (done) {
+  afterEach(async function () {
     this.timeout(5000)
-    killGrapes(grapes, done)
+    await stopGrapes(grapes)
   })
 
   return grapes

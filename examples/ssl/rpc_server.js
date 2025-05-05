@@ -6,7 +6,6 @@
 
 const Link = require('grenache-nodejs-link')
 const Peer = require('../../').PeerRPCServer
-const _ = require('lodash')
 const fs = require('fs')
 const path = require('path')
 
@@ -17,9 +16,9 @@ link.start()
 
 const opts = {
   secure: {
-    key: fs.readFileSync(path.join(__dirname, 'server-key.pem')),
-    cert: fs.readFileSync(path.join(__dirname, 'server-crt.pem')),
-    ca: fs.readFileSync(path.join(__dirname, 'ca-crt.pem')),
+    key: fs.readFileSync(path.join(__dirname, '../../test/certs/server-key.pem')),
+    cert: fs.readFileSync(path.join(__dirname, '../../test/certs/server-crt.pem')),
+    ca: fs.readFileSync(path.join(__dirname, '../../test/certs/ca-crt.pem')),
     requestCert: true,
     rejectUnauthorized: false // take care, can be dangerous in production!
   }
@@ -32,7 +31,7 @@ const peer = new Peer(
 peer.init()
 
 const service = peer.transport('server')
-service.listen(_.random(1000) + 1024)
+service.listen(Math.floor(Math.random() * 1001) + 1024)
 
 setInterval(function () {
   link.announce('rpc_test', service.port, {})

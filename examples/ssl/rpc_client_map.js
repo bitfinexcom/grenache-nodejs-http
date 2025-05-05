@@ -16,15 +16,15 @@ const link = new Link({
 link.start()
 
 const secure = {
-  key: fs.readFileSync(path.join(__dirname, 'client1-key.pem')),
-  cert: fs.readFileSync(path.join(__dirname, 'client1-crt.pem')),
-  ca: fs.readFileSync(path.join(__dirname, 'ca-crt.pem')),
+  key: fs.readFileSync(path.join(__dirname, '../../test/certs/client1-key.pem')),
+  cert: fs.readFileSync(path.join(__dirname, '../../test/certs/client1-crt.pem')),
+  ca: fs.readFileSync(path.join(__dirname, '../../test/certs/ca-crt.pem')),
   rejectUnauthorized: false // take care, can be dangerous in production!
 }
 
 const peer = new Peer(
   link,
-  { secure: secure }
+  { secure }
 )
 
 peer.init()
