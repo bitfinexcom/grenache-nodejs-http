@@ -16,8 +16,8 @@
   "dependencies": {
     "async": "3.2.6",
     "duplexify": "4.1.3",
-    "grenache-nodejs-base": "git+https://github.com/bitfinexcom/grenache-nodejs-base.git",
-    "grenache-nodejs-link": "git+https://github.com/bitfinexcom/grenache-nodejs-link.git",
+    "grenache-nodejs-base": "1.0.0",
+    "grenache-nodejs-link": "1.0.1",
     "node-fetch": "2.7.0",
     "pump": "3.0.2"
   },
