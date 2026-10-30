@@ -1,50 +1,51 @@
-/* eslint-env mocha */
+'use strict'
 
-const assert = require('assert')
+const test = require('brittle')
 const fs = require('fs')
 const path = require('path')
 const { PeerRPCClient, PeerRPCServer } = require('../')
 const Link = require('grenache-nodejs-link')
-const setupHooks = require('./before-after.js')
+const { grapeTestCase } = require('./before-after')
 
 const PORT = 1337
-let link, peer, peerSrvStr, serviceStr, stop
-describe('RPC integration', () => {
-  setupHooks((grapes) => {
-    link = new Link({
-      grape: 'http://127.0.0.1:30001'
-    })
-    link.start()
+let link, peer, peerSrvStr, serviceStr
 
-    peer = new PeerRPCClient(link, {})
-    peer.init()
+const grapeTest = grapeTestCase(() => {
+  link = new Link({
+    grape: 'http://127.0.0.1:30001'
+  })
+  link.start()
 
-    peerSrvStr = new PeerRPCServer(link, {
-      timeout: 300000,
-      disableBuffered: true
-    })
+  peer = new PeerRPCClient(link, {})
+  peer.init()
 
-    peerSrvStr.init()
-    serviceStr = peerSrvStr.transport('stream')
-    serviceStr.listen(PORT)
-
-    link.announce('rpc_manual', serviceStr.port, {}, (err, res) => {
-      if (err) throw Error('error in announce, setup')
-    })
-
-    stop = () => {
-      peer.stop()
-      link.stop()
-      serviceStr.stop()
-    }
+  peerSrvStr = new PeerRPCServer(link, {
+    timeout: 300000,
+    disableBuffered: true
   })
 
+  peerSrvStr.init()
+  serviceStr = peerSrvStr.transport('stream')
+  serviceStr.listen(PORT)
+
+  link.announce('rpc_manual', serviceStr.port, {}, (err) => {
+    if (err) throw Error('error in announce, setup')
+  })
+
+  return () => {
+    peer.stop()
+    link.stop()
+    serviceStr.stop()
+  }
+})
+
+test('RPC integration', (t) => {
   const pdfFile = path.join(__dirname, './example-amazon-dynamo-sosp2007.pdf')
 
-  it('manual request handling works', (done) => {
+  t.test('manual request handling works', { timeout: 7000 }, grapeTest(async (t) => {
     serviceStr.on('stream', (req, res, meta, handler) => {
-      assert.strictEqual(meta.isStream, true)
-      assert.strictEqual(req.headers['content-type'], 'application/pdf')
+      t.is(meta.isStream, true)
+      t.is(req.headers['content-type'], 'application/pdf')
 
       const rid = meta.infoHeaders[0]
       const writer = fs.createWriteStream('test.pdf')
@@ -53,7 +54,7 @@ describe('RPC integration', () => {
       writer.on('close', () => {
         const origStat = fs.statSync(pdfFile)
         const res = fs.statSync('test.pdf')
-        assert.strictEqual(res.size, origStat.size)
+        t.is(res.size, origStat.size)
 
         handler.reply(rid, null, 'ok')
       })
@@ -74,15 +75,18 @@ describe('RPC integration', () => {
       timeout: 10000
     })
 
-    req.on('data', (data) => {
-      const [,, msg] = JSON.parse(data.toString())
-      assert.strictEqual(msg, 'ok')
-      stop()
-      done()
+    const p = new Promise(resolve => {
+      req.on('data', (data) => {
+        const [,, msg] = JSON.parse(data.toString())
+        t.is(msg, 'ok')
+        resolve()
+      })
     })
 
     const data = fs.createReadStream(pdfFile)
 
     data.pipe(req)
-  }).timeout(7000)
+
+    await p
+  }))
 })
