@@ -1,59 +1,12 @@
 'use strict'
 
 const test = require('brittle')
-const fs = require('fs')
-const path = require('path')
-const { PeerRPCClient, PeerRPCServer } = require('../')
-const Link = require('grenache-nodejs-link')
-const { grapeTestCase } = require('./before-after')
+const { rpcTestCase } = require('./before-after')
 
-const PORT = 1337
-let link, peer, peerSrv, service
-
-const grapeTest = grapeTestCase(() => {
-  link = new Link({
-    grape: 'http://127.0.0.1:30001'
-  })
-  link.start()
-
-  peer = new PeerRPCClient(link, {
-    secure: {
-      key: fs.readFileSync(path.join(__dirname, './certs/client1-key.pem')),
-      cert: fs.readFileSync(path.join(__dirname, './certs/client1-crt.pem')),
-      ca: fs.readFileSync(path.join(__dirname, './certs/ca-crt.pem')),
-      rejectUnauthorized: false // take care, can be dangerous in production!
-    }
-  })
-  peer.init()
-
-  peerSrv = new PeerRPCServer(link, {
-    secure: {
-      key: fs.readFileSync(path.join(__dirname, './certs/server-key.pem')),
-      cert: fs.readFileSync(path.join(__dirname, './certs/server-crt.pem')),
-      ca: fs.readFileSync(path.join(__dirname, './certs/ca-crt.pem')),
-      requestCert: true,
-      rejectUnauthorized: false // take care, can be dangerous in production!
-    },
-    timeout: 300000
-  })
-
-  peerSrv.init()
-  service = peerSrv.transport('server')
-  service.listen(PORT)
-
-  link.announce('rpc_test', service.port, {}, (err) => {
-    if (err) throw Error('error in announce, setup')
-  })
-
-  return () => {
-    peer.stop()
-    link.stop()
-    service.stop()
-  }
-})
+const rpcTest = rpcTestCase({ transport: 'server', isSecure: true })
 
 test('RPC integration', async (t) => {
-  await t.test('secure request, objects', { timeout: 7000 }, grapeTest(async (t) => {
+  await t.test('secure request, objects', { timeout: 7000 }, rpcTest(async ({ t, service, peer }) => {
     service.on('request', (rid, key, payload, handler, cert) => {
       t.ok(typeof rid === 'string')
       t.is(key, 'rpc_test')
@@ -73,7 +26,7 @@ test('RPC integration', async (t) => {
     })
   }))
 
-  await t.test('secure map, strings', { timeout: 7000 }, grapeTest(async (t) => {
+  await t.test('secure map, strings', { timeout: 7000 }, rpcTest(async ({ t, service, peer }) => {
     service.on('request', (rid, key, payload, handler, cert) => {
       t.ok(typeof rid === 'string')
       t.is(key, 'rpc_test')
