@@ -1,103 +1,72 @@
-/* eslint-env mocha */
+'use strict'
 
-const assert = require('assert')
+const test = require('brittle')
 const { PassThrough } = require('stream')
-const { PeerRPCClient, PeerRPCServer } = require('../')
-const Link = require('grenache-nodejs-link')
-const setupHooks = require('./before-after.js')
+const { rpcTestCase } = require('./before-after')
 
-const PORT = 1337
-let link, peer, peerSrvStr, serviceStr, stop
-describe('RPC integration', () => {
-  setupHooks((grapes) => {
-    link = new Link({
-      grape: 'http://127.0.0.1:30001'
-    })
-    link.start()
+const rpcTest = rpcTestCase({ transport: 'stream', disableBuffered: true })
 
-    peer = new PeerRPCClient(link, {})
-    peer.init()
-
-    peerSrvStr = new PeerRPCServer(link, {
-      timeout: 300000,
-      disableBuffered: true
-    })
-
-    peerSrvStr.init()
-    serviceStr = peerSrvStr.transport('stream')
-    serviceStr.listen(PORT)
-
-    link.announce('rpc_stream', serviceStr.port, {}, (err, res) => {
-      if (err) throw Error('error in announce, setup')
-    })
-
-    stop = () => {
-      peer.stop()
-      link.stop()
-      serviceStr.stop()
-    }
-  })
-
-  it('streaming works, objects, buffered client, reply handler', (done) => {
-    serviceStr.on('stream', (req, res, meta, handler) => {
-      assert.strictEqual(meta.isStream, false)
+test('RPC integration', async (t) => {
+  await t.test('streaming works, objects, buffered client, reply handler', { timeout: 7000 }, rpcTest(async ({ t, service, peer }) => {
+    service.on('stream', (req, res, meta, handler) => {
+      t.is(meta.isStream, false)
 
       req.on('data', (d) => {
         const [rid, key, args] = JSON.parse(d.toString())
 
-        assert.deepStrictEqual(args, { hello: 'world' })
-        assert.ok(typeof rid === 'string')
-        assert.strictEqual(key, 'rpc_stream')
+        t.alike(args, { hello: 'world' })
+        t.ok(typeof rid === 'string')
+        t.is(key, 'rpc_test')
 
         handler.reply(rid, null, { hello: 'helloworld' })
       })
     })
 
     const opts = { timeout: 100000 }
-    peer.request('rpc_stream', { hello: 'world' }, opts, (err, result) => {
-      if (err) throw err
-      assert.deepStrictEqual(result, { hello: 'helloworld' })
-
-      stop()
-      done()
+    await new Promise(resolve => {
+      peer.request('rpc_test', { hello: 'world' }, opts, (err, result) => {
+        if (err) throw err
+        t.alike(result, { hello: 'helloworld' })
+        resolve()
+      })
     })
-  }).timeout(7000)
+  }))
 
-  it('streaming works, string, buffered client, reply handler', (done) => {
-    serviceStr.on('stream', (req, res, meta, handler) => {
-      assert.strictEqual(meta.isStream, false)
+  await t.test('streaming works, string, buffered client, reply handler', { timeout: 7000 }, rpcTest(async ({ t, service, peer }) => {
+    service.on('stream', (req, res, meta, handler) => {
+      t.is(meta.isStream, false)
 
       req.on('data', (d) => {
         const [rid, key, args] = JSON.parse(d.toString())
 
-        assert.strictEqual(args, 'hello')
-        assert.ok(typeof rid === 'string')
-        assert.strictEqual(key, 'rpc_stream')
+        t.is(args, 'hello')
+        t.ok(typeof rid === 'string')
+        t.is(key, 'rpc_test')
 
         handler.reply(rid, null, 'world')
       })
     })
 
     const opts = { timeout: 100000 }
-    peer.request('rpc_stream', 'hello', opts, (err, result) => {
-      if (err) throw err
-      assert.strictEqual(result, 'world')
-
-      stop()
-      done()
+    await new Promise(resolve => {
+      peer.request('rpc_test', 'hello', opts, (err, result) => {
+        if (err) throw err
+        t.is(result, 'world')
+        resolve()
+      })
     })
-  }).timeout(7000)
+  }))
 
-  it('streaming works, string, buffered client, stream sent back', (done) => {
-    serviceStr.on('stream', (req, res, meta, handler) => {
-      assert.strictEqual(meta.isStream, false)
+  await t.test('streaming works, string, buffered client, stream sent back', { timeout: 7000 }, rpcTest(async ({ t, service, peer }) => {
+    service.on('stream', (req, res, meta) => {
+      t.is(meta.isStream, false)
 
       req.on('data', (d) => {
         const [rid, key, args] = JSON.parse(d.toString())
 
-        assert.strictEqual(args, 'hello')
-        assert.ok(typeof rid === 'string')
-        assert.strictEqual(key, 'rpc_stream')
+        t.is(args, 'hello')
+        t.ok(typeof rid === 'string')
+        t.is(key, 'rpc_test')
 
         const writable = new PassThrough()
         const payload = JSON.stringify([rid, null, 'world2'])
@@ -108,29 +77,29 @@ describe('RPC integration', () => {
     })
 
     const opts = { timeout: 100000 }
-    peer.request('rpc_stream', 'hello', opts, (err, result) => {
-      if (err) throw err
-      assert.strictEqual(result, 'world2')
-
-      stop()
-      done()
+    await new Promise(resolve => {
+      peer.request('rpc_test', 'hello', opts, (err, result) => {
+        if (err) throw err
+        t.is(result, 'world2')
+        resolve()
+      })
     })
-  }).timeout(7000)
+  }))
 
-  it('streaming works, buffer, stream client, stream on server', (done) => {
+  await t.test('streaming works, buffer, stream client, stream on server', { timeout: 7000 }, rpcTest(async ({ t, service, peer }) => {
     const reqPayload = Buffer.from('megalargefile')
     const resPayload = Buffer.from('superlargefile')
 
-    serviceStr.on('stream', (req, res, meta, handler) => {
-      assert.strictEqual(meta.isStream, true)
+    service.on('stream', (req, res, meta) => {
+      t.is(meta.isStream, true)
 
       req.on('data', (d) => {
         const [rid, key] = meta.infoHeaders
 
-        assert.ok(d.equals(reqPayload), 'received Buffer equals payload on server')
+        t.ok(d.equals(reqPayload), 'received Buffer equals payload on server')
 
-        assert.ok(typeof rid === 'string')
-        assert.strictEqual(key, 'rpc_stream')
+        t.ok(typeof rid === 'string')
+        t.is(key, 'rpc_test')
 
         const writable = new PassThrough()
         writable.pipe(res)
@@ -139,42 +108,44 @@ describe('RPC integration', () => {
       })
     })
 
-    const req = peer.stream('rpc_stream', {
+    const req = peer.stream('rpc_test', {
       timeout: 10000
     })
 
-    req
-      .on('data', (data) => {
-        assert.ok(data.equals(resPayload), 'received Buffer equals payload on client')
-
-        stop()
-        done()
-      })
-      .on('end', () => {})
-      .on('error', (e) => { console.error(e) })
+    const p = new Promise(resolve => {
+      req
+        .on('data', (data) => {
+          t.ok(data.equals(resPayload), 'received Buffer equals payload on client')
+          resolve()
+        })
+        .on('end', () => {})
+        .on('error', (e) => { console.error(e) })
+    })
 
     const writable = new PassThrough()
     writable.write(reqPayload)
     writable.pipe(req)
-  }).timeout(7000)
 
-  it('streaming works, buffer, stream client, stream on server, additional headers', (done) => {
+    await p
+  }))
+
+  await t.test('streaming works, buffer, stream client, stream on server, additional headers', { timeout: 7000 }, rpcTest(async ({ t, service, peer }) => {
     const reqPayload = Buffer.from('megalargefile')
     const resPayload = Buffer.from('superlargefile')
 
-    serviceStr.on('stream', (req, res, meta, handler) => {
-      assert.strictEqual(meta.isStream, true)
+    service.on('stream', (req, res, meta) => {
+      t.is(meta.isStream, true)
 
       req.on('data', (d) => {
         const [rid, key] = meta.infoHeaders
 
-        assert.ok(d.equals(reqPayload), 'received Buffer equals payload on server')
+        t.ok(d.equals(reqPayload), 'received Buffer equals payload on server')
 
-        assert.ok(typeof rid === 'string')
-        assert.strictEqual(key, 'rpc_stream')
+        t.ok(typeof rid === 'string')
+        t.is(key, 'rpc_test')
 
-        assert.strictEqual(meta.action, 'uploadPublic')
-        assert.strictEqual(meta.args.foo, 'bar')
+        t.is(meta.action, 'uploadPublic')
+        t.is(meta.args.foo, 'bar')
 
         const writable = new PassThrough()
         writable.pipe(res)
@@ -183,7 +154,7 @@ describe('RPC integration', () => {
       })
     })
 
-    const req = peer.stream('rpc_stream', {
+    const req = peer.stream('rpc_test', {
       timeout: 10000,
       headers: {
         _a: 'uploadPublic',
@@ -191,18 +162,20 @@ describe('RPC integration', () => {
       }
     })
 
-    req
-      .on('data', (data) => {
-        assert.ok(data.equals(resPayload), 'received Buffer equals payload on client')
-
-        stop()
-        done()
-      })
-      .on('end', () => {})
-      .on('error', (e) => { console.error(e) })
+    const p = new Promise(resolve => {
+      req
+        .on('data', (data) => {
+          t.ok(data.equals(resPayload), 'received Buffer equals payload on client')
+          resolve()
+        })
+        .on('end', () => {})
+        .on('error', (e) => { console.error(e) })
+    })
 
     const writable = new PassThrough()
     writable.write(reqPayload)
     writable.pipe(req)
-  }).timeout(7000)
+
+    await p
+  }))
 })
